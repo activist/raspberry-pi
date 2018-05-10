@@ -12,10 +12,14 @@ pingip='google.com'
 # Perform the network check and reset if necessary
 /bin/ping -c 2 -I $wlan $pingip > /dev/null 2> /dev/null
 if [ $? -ge 1 ] ; then
-    echo "$now Network is DOWN. Perform a reset" >> $LOG_PATH
+    echo "$now Network is DOWN. Perform a reboot" >> $LOG_PATH
     /sbin/ifdown $wlan
-    sleep 5
+    sleep 10
     /sbin/ifup --force $wlan
+    if [ $? -ge 1 ] ; then
+        "$now Failed to restart $wlan. Rebooting"
+        /sbin/reboot 1 
+    fi
 else
     echo "$now Network is UP. Just exit the program." >> $LOG_PATH
 fi
